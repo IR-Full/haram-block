@@ -1,0 +1,76 @@
+# Hosts that must never be blocked as a whole, even if an upstream list adds them.
+# Only the host itself and its parents are protected: subdomains stay blockable,
+# so e.g. an adult blog on *.tumblr.com is still caught.
+# Mixed platforms (Reddit, X, Tumblr…) are handled by page-level filtering in later stages.
+
+# Search, mail, maps
+google.com
+bing.com
+duckduckgo.com
+yandex.ru
+yandex.com
+ya.ru
+mail.ru
+
+# Video and social platforms
+youtube.com
+youtu.be
+reddit.com
+x.com
+twitter.com
+t.co
+tumblr.com
+instagram.com
+facebook.com
+vk.com
+ok.ru
+t.me
+telegram.org
+tiktok.com
+pinterest.com
+discord.com
+twitch.tv
+
+# Knowledge and dev
+wikipedia.org
+wikimedia.org
+github.com
+stackoverflow.com
+medium.com
+
+# Infrastructure and hosting that serve countless unrelated sites.
+# (Public suffixes like github.io, cloudfront.net, googleapis.com are already
+# protected by normalize.ts and must not be listed here.)
+cloudflare.com
+amazonaws.com
+googleusercontent.com
+gstatic.com
+imgur.com
+
+# Mainstream sites found blocked in the Tranco top-20k review (2026-09-26).
+# Adult sections on these platforms are left to page-level filtering.
+yandex.by
+kinopoisk.ru
+jut.su
+boosty.to
+fastpic.ru
+radikal.ru
+postimage.org
+my-cima.net
+ekstrabladet.dk
+refinery29.com
+chomikuj.pl
+unblog.fr
+online.fr
+character.ai
+likee.video
+dramaboxdb.com
+ameba.jp
+nicovideo.jp
+fc2.com
+booth.pm
+ximalaya.com
+mgtv.com
+chaoxing.com
+gamersky.com
+linovelib.com

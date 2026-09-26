@@ -1,0 +1,15 @@
+# Well-known adult sites the ruleset must cover. The build fails if any is missing,
+# which guards against a broken upstream or an over-eager allowlist edit.
+pornhub.com
+xvideos.com
+xnxx.com
+xhamster.com
+redtube.com
+youporn.com
+spankbang.com
+onlyfans.com
+chaturbate.com
+stripchat.com
+brazzers.com
+eporner.com
+rule34.xxx

@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Weekly rebuild against fresh upstream lists catches broken sources and new false positives early.
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - name: Build blocklists
+        run: npm run lists
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+
+      - name: Build and zip extension
+        run: npx wxt zip
+
+      - name: E2E tests
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
+
+      - name: False-positive report (Tranco top 20k)
+        if: always()
+        continue-on-error: true
+        run: |
+          echo '### Blocked sites in Tranco top 20k' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Anything that is not adult content belongs in `tools/build-lists/allowlist.txt`.' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          npm run --silent lists:report >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: extension
+          path: .output/*.zip
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results/

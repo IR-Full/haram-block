@@ -1,0 +1,51 @@
+{
+  "name": "block-haram",
+  "description": "Blocks adult and other haram websites. Works locally, no telemetry.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "npm run lists -- --if-missing && wxt",
+    "build": "npm run lists && wxt build",
+    "zip": "npm run lists && wxt zip",
+    "lists": "node tools/build-lists/index.ts",
+    "lists:refresh": "node tools/build-lists/index.ts --refresh",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
+    "postinstall": "wxt prepare",
+    "pretest:e2e": "npm run build",
+    "lists:report": "node tools/build-lists/tranco-report.ts 20000"
+  },
+  "dependencies": {
+    "@fontsource/amiri": "5.3.0",
+    "preact": "10.29.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "@preact/preset-vite": "2.10.6",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/node": "24.19.0",
+    "@wxt-dev/auto-icons": "1.1.2",
+    "eslint": "10.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "prettier": "3.9.9",
+    "tailwindcss": "4.3.3",
+    "tldts": "7.4.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vitest": "5.0.2",
+    "wxt": "0.21.4"
+  }
+}

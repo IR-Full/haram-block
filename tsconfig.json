@@ -1,0 +1,10 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "erasableSyntaxOnly": true,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  }
+}

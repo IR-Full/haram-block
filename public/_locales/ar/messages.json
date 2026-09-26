@@ -1,0 +1,19 @@
+{
+  "extName": { "message": "Block Haram: حجب المواقع الإباحية" },
+  "extDescription": {
+    "message": "يحجب أكثر من 500,000 موقع للبالغين مباشرةً في المتصفح. بلا تتبّع: كل شيء يعمل محليًا."
+  },
+  "blockedTitle": { "message": "تم حجب الموقع" },
+  "blockedLead": { "message": "هذا الموقع يحتوي على محتوى للبالغين. لقد عملت الحماية — وهذا هو الاختيار الصحيح." },
+  "ayahTranslation": { "message": "" },
+  "ayahSource": { "message": "سورة النور، الآية 30" },
+  "goBack": { "message": "العودة" },
+  "closeTab": { "message": "إغلاق التبويب" },
+  "blockedCounter": { "message": "المحاولات المحجوبة: $1" },
+  "popupStatus": { "message": "الحماية مفعّلة" },
+  "popupStatusHint": { "message": "تعمل دائمًا ولا يمكن إيقافها." },
+  "statDomains": { "message": "المواقع في القائمة" },
+  "statBlocked": { "message": "المحاولات المحجوبة" },
+  "statUpdated": { "message": "آخر تحديث للقائمة" },
+  "popupPrivacy": { "message": "كل شيء يعمل محليًا: لا يُرسَل سجل التصفح إلى أي مكان." }
+}
