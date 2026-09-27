@@ -1,0 +1,117 @@
+name: Release
+
+# Two kinds of release, both built, tested and submitted the same way:
+#   * code release  — push a tag vX.Y.Z matching package.json;
+#   * list refresh  — weekly: the latest code release rebuilt with today's blocklists,
+#                     versioned X.Y.Z.N (see tools/release/version.ts).
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  schedule:
+    - cron: '0 4 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: write # create GitHub releases and list-refresh tags
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Chrome Web Store API v2 service account (see README "Публикация"). Without these the
+      # release is still built and attached to a GitHub release, just not submitted.
+      CHROME_API_VERSION: v2
+      CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+      CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+      CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+      CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve what to release
+        id: plan
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "mode=code" >> "$GITHUB_OUTPUT"
+            echo "base=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          base=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' --exclude 'v*.*.*.*' 2>/dev/null) || {
+            echo "::notice::No code release tag yet; nothing to refresh."
+            echo "mode=none" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          echo "mode=lists" >> "$GITHUB_OUTPUT"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          # Ship exactly the released code, but with the blocklist curation from main.
+          git checkout --quiet "$base"
+          git checkout "$GITHUB_SHA" -- tools/build-lists/allowlist.txt tools/build-lists/must-block.txt
+
+      - uses: actions/setup-node@v7
+        if: steps.plan.outputs.mode != 'none'
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        if: steps.plan.outputs.mode != 'none'
+        run: npm ci
+
+      - name: Set version
+        id: version
+        if: steps.plan.outputs.mode != 'none'
+        run: |
+          if [ "${{ steps.plan.outputs.mode }}" = code ]; then
+            version=$(node tools/release/version.ts)
+            if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $version"
+              exit 1
+            fi
+          else
+            version=$(node tools/release/version.ts --list-refresh)
+            npm pkg set version="$version"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build blocklists
+        if: steps.plan.outputs.mode != 'none'
+        run: npm run lists:refresh
+
+      - name: Check
+        if: steps.plan.outputs.mode != 'none'
+        run: npm run check
+
+      - name: Build and zip
+        if: steps.plan.outputs.mode != 'none'
+        run: npx wxt zip
+
+      - name: E2E tests
+        if: steps.plan.outputs.mode != 'none'
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
+
+      - name: GitHub release
+        if: steps.plan.outputs.mode != 'none'
+        run: |
+          version=${{ steps.version.outputs.version }}
+          domains=$(node -p "require('./public/rules/meta.json').domainCount")
+          if [ "${{ steps.plan.outputs.mode }}" = code ]; then
+            notes="Release $version. Blocklist: $domains domains."
+          else
+            notes="Weekly blocklist refresh of ${{ steps.plan.outputs.base }}: $domains domains. No code changes."
+          fi
+          gh release create "v$version" .output/*-chrome.zip public/rules/meta.json \
+            --target "$(git rev-parse HEAD)" --title "v$version" --notes "$notes"
+
+      - name: Submit to the Chrome Web Store
+        if: steps.plan.outputs.mode != 'none' && env.CHROME_EXTENSION_ID != ''
+        run: npx wxt submit --chrome-zip .output/*-chrome.zip

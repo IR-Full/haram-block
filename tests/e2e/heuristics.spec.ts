@@ -1,3 +1,4 @@
+import type { BrowserContext } from '@playwright/test';
 import { expect, test, type Origin } from './fixtures';
 
 const page = (url: string, head: Record<string, string> = {}) => {
@@ -16,15 +17,37 @@ const BORDERLINE = { title: 'Порно видео онлайн бесплатн
 const reached = (origin: Origin, since: number, hostname: string) =>
   origin.requests.slice(since).some((r) => r.url.hostname === hostname);
 
+/**
+ * The page is hidden at once, but the domain is stored by the service worker, which may still be
+ * cold-starting when the content script stops waiting (1 s). Wait for it before relying on DNR.
+ */
+async function learned(context: BrowserContext, extensionId: string, host: string): Promise<void> {
+  const probe = await context.newPage();
+  await probe.goto(`chrome-extension://${extensionId}/popup.html`);
+  await expect
+    .poll(() =>
+      probe.evaluate(async (h) => {
+        type Local = { get(key: string): Promise<Record<string, Record<string, number> | undefined>> };
+        const local = (globalThis as unknown as { chrome: { storage: { local: Local } } }).chrome.storage.local;
+        const { learnedHosts } = await local.get('learnedHosts');
+        return learnedHosts !== undefined && h in learnedHosts;
+      }, host),
+    )
+    .toBe(true);
+  await probe.close();
+}
+
 test.describe('page heuristics', () => {
   test('hides a self-labelled RTA page and blocks its domain from then on', async ({
     page: tab,
+    extContext,
     extensionId,
     origin,
   }) => {
     const blocked = `chrome-extension://${extensionId}/blocked.html`;
     await tab.goto(page('http://rta-site.test/', { rating: 'RTA-5042-1996-1400-1577-RTA' }));
     await expect(tab).toHaveURL(blocked);
+    await learned(extContext, extensionId, 'rta-site.test');
 
     const since = origin.requests.length;
     await tab.goto('http://rta-site.test/another-page');
@@ -35,10 +58,11 @@ test.describe('page heuristics', () => {
     expect(reached(origin, since, 'rta-site.test') || reached(origin, since, 'cdn.rta-site.test')).toBe(false);
   });
 
-  test('learns an explicit site under its bare domain', async ({ page: tab, extensionId }) => {
+  test('learns an explicit site under its bare domain', async ({ page: tab, extContext, extensionId }) => {
     const blocked = `chrome-extension://${extensionId}/blocked.html`;
     await tab.goto(page('http://www.fresh-tube.test/', EXPLICIT));
     await expect(tab).toHaveURL(blocked);
+    await learned(extContext, extensionId, 'fresh-tube.test');
     await tab.goto('http://fresh-tube.test/');
     await expect(tab).toHaveURL(blocked);
   });

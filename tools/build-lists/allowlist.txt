@@ -47,7 +47,7 @@ googleusercontent.com
 gstatic.com
 imgur.com
 
-# Mainstream sites found blocked in the Tranco top-20k review (2026-09-26).
+# Mainstream sites found blocked in the Tranco top-20k reviews (2026-09-26, 2026-09-27).
 # Adult sections on these platforms are left to page-level filtering.
 yandex.by
 kinopoisk.ru
@@ -74,3 +74,4 @@ mgtv.com
 chaoxing.com
 gamersky.com
 linovelib.com
+qidian.com

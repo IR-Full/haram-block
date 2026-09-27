@@ -5,3 +5,4 @@ tools/build-lists/.cache/
 test-results/
 playwright-report/
 package-lock.json
+store-assets/

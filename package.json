@@ -24,7 +24,8 @@
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
     "postinstall": "wxt prepare",
     "pretest:e2e": "npm run build",
-    "lists:report": "node tools/build-lists/tranco-report.ts 20000"
+    "lists:report": "node tools/build-lists/tranco-report.ts 20000",
+    "store:assets": "npm run build && node tools/store/capture.ts"
   },
   "dependencies": {
     "@fontsource/amiri": "5.3.0",
