@@ -69,7 +69,7 @@ npm run build
 | `npm run lists:report`  | Какие сайты из топ-20k Tranco блокируются (поиск ложных срабатываний) |
 | `npm run check`         | typecheck + lint + format + юнит-тесты                                |
 | `npm run test:e2e`      | Playwright: настоящий Chromium с расширением, весь трафик локальный   |
-| `npm run store:assets`  | Скриншоты и промо-картинки для Chrome Web Store в `store-assets/`     |
+| `npm run store:assets`  | Скриншоты, промо-картинки и логотип для магазинов в `store-assets/`   |
 
 ### Сборщик списков — `tools/build-lists/`
 
@@ -132,12 +132,39 @@ npm run build
 Без секретов workflow всё равно соберёт и протестирует выпуск и приложит архив к GitHub Release, просто не отправит его в стор.
 Если предыдущая версия ещё на проверке, отправка новой завершится ошибкой — это видно в Actions, следующий запуск её повторит.
 
+## Публикация в Microsoft Edge Add-ons
+
+Регистрация бесплатная. В Edge публикуется тот же архив `.output/block-haram-<версия>-chrome.zip`.
+
+### Первый выпуск (вручную, один раз)
+
+1. Зарегистрируйтесь в [программе Microsoft Edge в Partner Center](https://partner.microsoft.com/dashboard/microsoftedge/public/login?ref=dd) как **Individual**; Publisher display name — `Block Haram`.
+2. `npm run zip && npm run store:assets`.
+3. В Partner Center: **Microsoft Edge → Create new extension**, загрузите архив.
+4. Заполните вкладки текстами из [`docs/store/listing.md`](docs/store/listing.md#microsoft-edge-add-ons): Availability, Properties, Store listings.
+   Логотип 300×300 — `store-assets/logo-300.png`. В **Notes for certification** вставьте текст из того же файла.
+5. После публикации в Partner Center появится **Extension ID** в Edge Add-ons: он отличается от ID в Chrome Web Store и нужен для `install-policies.ps1 -EdgeExtensionId`.
+
+### Дальнейшие выпуски (автоматически)
+
+Тот же [`release.yml`](.github/workflows/release.yml) отправляет выпуск и в Edge, если заданы секреты
+(Partner Center → Microsoft Edge → **Publish API** → Create API credentials):
+
+| Секрет            | Значение                                           |
+| ----------------- | -------------------------------------------------- |
+| `EDGE_PRODUCT_ID` | Product ID расширения со страницы в Partner Center |
+| `EDGE_CLIENT_ID`  | Client ID из Publish API                           |
+| `EDGE_API_KEY`    | API key из Publish API                             |
+
+Магазины проверяют выпуски независимо: ошибка отправки в один не отменяет отправку в другой.
+Проверка в Edge идёт до 7 рабочих дней, поэтому еженедельное обновление списков может упасть, пока предыдущее ещё на проверке; следующий запуск его повторит.
+
 ## Защита от удаления (Windows)
 
 Любое расширение можно выключить на `chrome://extensions`. Закрепить его может только администратор компьютера с помощью политик браузера.
 Это делает [`scripts/windows/install-policies.ps1`](scripts/windows/install-policies.ps1) для Chrome, Edge и Brave:
 
-- принудительно устанавливает Block Haram из Chrome Web Store: кнопки «Выключить» и «Удалить» пропадают;
+- принудительно устанавливает Block Haram из магазина (Chrome Web Store, а в Edge — Edge Add-ons): кнопки «Выключить» и «Удалить» пропадают;
 - отключает инкогнито / InPrivate, гостевой режим и добавление профилей (там расширение не работало бы);
 - в Brave отключает окна Tor;
 - с ключом `-FamilyDns` ставит на все активные сетевые адаптеры семейный DNS Cloudflare (`1.1.1.3`) с шифрованием DoH в Windows 11
@@ -146,8 +173,11 @@ npm run build
 Существующие политики не затираются, повторный запуск безопасен. Сначала посмотрите, что изменится:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\windows\install-policies.ps1 -ExtensionId <ID из Chrome Web Store> -FamilyDns -DryRun
+powershell -ExecutionPolicy Bypass -File .\scripts\windows\install-policies.ps1 -ExtensionId <ID из Chrome Web Store> -EdgeExtensionId <ID из Edge Add-ons> -FamilyDns -DryRun
 ```
+
+Можно передать только один из ID. Без `-ExtensionId` расширение закрепляется только в Edge, а в Chrome и Brave включаются лишь запреты инкогнито и гостевого режима.
+Без `-EdgeExtensionId` Edge ставит версию из Chrome Web Store.
 
 Затем запустите ту же команду без `-DryRun` в PowerShell от имени администратора, перезапустите браузеры и проверьте `chrome://policy`.
 Все изменения — это значения реестра в `HKLM\SOFTWARE\Policies\…`; администратор может их удалить.

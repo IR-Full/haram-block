@@ -23,13 +23,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Chrome Web Store API v2 service account (see README "Публикация"). Without these the
-      # release is still built and attached to a GitHub release, just not submitted.
+      # Store credentials (see README "Публикация"). A store without them is skipped; the release is
+      # still built and attached to a GitHub release.
       CHROME_API_VERSION: v2
       CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
       CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
       CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
       CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+      # Microsoft Edge Add-ons API v1.1; the same Chromium package is submitted.
+      EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
@@ -113,5 +117,12 @@ jobs:
             --target "$(git rev-parse HEAD)" --title "v$version" --notes "$notes"
 
       - name: Submit to the Chrome Web Store
+        id: chrome
         if: steps.plan.outputs.mode != 'none' && env.CHROME_EXTENSION_ID != ''
         run: npx wxt submit --chrome-zip .output/*-chrome.zip
+
+      # Also runs when only the Chrome submission failed (e.g. a version still in review there):
+      # the stores review independently. Any earlier failure still skips it.
+      - name: Submit to Microsoft Edge Add-ons
+        if: ${{ (success() || steps.chrome.outcome == 'failure') && steps.plan.outputs.mode != 'none' && env.EDGE_PRODUCT_ID != '' }}
+        run: npx wxt submit --edge-zip .output/*-chrome.zip

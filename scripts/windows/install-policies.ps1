@@ -7,7 +7,8 @@
     Run by the computer's owner, from an elevated PowerShell, to make the blocker hard to switch off.
 
     For every browser below (whether or not it is installed yet) this script:
-      * force-installs Block Haram from the Chrome Web Store, so it cannot be disabled or removed;
+      * force-installs Block Haram from its store (Chrome Web Store, or Edge Add-ons for Edge),
+        so it cannot be disabled or removed;
       * disables Incognito / InPrivate, Guest mode and adding profiles, where the extension would not run;
       * Brave only: disables private windows with Tor.
 
@@ -19,11 +20,17 @@
     Existing policies are preserved: the extension is appended to ExtensionInstallForcelist
     instead of replacing it. Re-running the script is safe.
 
-    On a PC that is not joined to a domain, Chrome and Edge only honour ExtensionInstallForcelist
-    for extensions published in the Chrome Web Store, which is why an extension ID is required.
+    On a PC that is not joined to a domain, browsers only honour ExtensionInstallForcelist for
+    extensions published in a store, which is why at least one store ID is required. Chrome and
+    Brave install from the Chrome Web Store; Edge prefers Edge Add-ons and falls back to the
+    Chrome Web Store build when only -ExtensionId is given.
 
 .PARAMETER ExtensionId
-    The 32-character Chrome Web Store ID of Block Haram.
+    The 32-character Chrome Web Store ID of Block Haram. Without it Chrome and Brave still get the
+    Incognito / Guest restrictions, but the extension is not force-installed there.
+
+.PARAMETER EdgeExtensionId
+    The 32-character Microsoft Edge Add-ons ID of Block Haram (it differs from the Chrome Web Store ID).
 
 .PARAMETER FamilyDns
     Also set Cloudflare for Families as the system DNS.
@@ -37,6 +44,9 @@
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File .\install-policies.ps1 -ExtensionId abcdefghijklmnopabcdefghijklmnop -FamilyDns
 
+.EXAMPLE
+    powershell -ExecutionPolicy Bypass -File .\install-policies.ps1 -EdgeExtensionId ponmlkjihgfedcbaponmlkjihgfedcba -FamilyDns
+
 .NOTES
     Verify afterwards at chrome://policy, edge://policy or brave://policy, then restart the browsers.
     Every change is a registry value under HKLM\SOFTWARE\Policies\<vendor>; an administrator can
@@ -44,9 +54,11 @@
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)]
     [ValidatePattern('^[a-p]{32}$')]
     [string]$ExtensionId,
+
+    [ValidatePattern('^[a-p]{32}$')]
+    [string]$EdgeExtensionId,
 
     [switch]$FamilyDns,
 
@@ -56,7 +68,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$WebStoreUpdateUrl = 'https://clients2.google.com/service/update2/crx'
+$ChromeStoreUpdateUrl = 'https://clients2.google.com/service/update2/crx'
+$EdgeStoreUpdateUrl = 'https://edge.microsoft.com/extensionwebstorebase/v1/crx'
 
 # Policy names differ slightly between vendors; values are DWORDs unless they are strings.
 $Browsers = @(
@@ -120,16 +133,23 @@ function Set-PolicyValue([string]$Key, [string]$Name, $Value) {
     }
 }
 
-function Add-ForceInstall([string]$PolicyRoot) {
+function Add-ForceInstall([string]$PolicyRoot, [string]$Id, [string]$UpdateUrl, [string]$SupersededId) {
     $key = Join-Path $PolicyRoot 'ExtensionInstallForcelist'
-    $entry = "$ExtensionId;$WebStoreUpdateUrl"
+    $entry = "$Id;$UpdateUrl"
 
     # The list policy is a key whose values are named "1", "2", ...; keep other entries intact.
     $taken = @{}
     if (Test-Path $key) {
         foreach ($prop in (Get-ItemProperty -Path $key).PSObject.Properties) {
             if ($prop.Name -notmatch '^\d+$') { continue }
-            if ("$($prop.Value)".StartsWith("$ExtensionId;")) {
+            # The same extension from another store (an earlier run with only the Chrome Web Store ID)
+            # would install a second copy next to this one.
+            if ($SupersededId -and "$($prop.Value)".StartsWith("$SupersededId;")) {
+                Write-Change "remove ExtensionInstallForcelist\$($prop.Name) = $($prop.Value)"
+                if (-not $DryRun) { Remove-ItemProperty -Path $key -Name $prop.Name }
+                continue
+            }
+            if ("$($prop.Value)".StartsWith("$Id;")) {
                 Write-Host "  = ExtensionInstallForcelist already contains the extension (entry $($prop.Name))"
                 return
             }
@@ -174,13 +194,23 @@ function Set-FamilyDns {
     if (-not $DryRun) { Clear-DnsClientCache }
 }
 
+if (-not $ExtensionId -and -not $EdgeExtensionId) {
+    throw 'Pass -ExtensionId (Chrome Web Store) and/or -EdgeExtensionId (Edge Add-ons).'
+}
+
 if (-not $DryRun -and -not (Test-Administrator)) {
     throw 'Run this script from an elevated PowerShell (Run as administrator), or add -DryRun to preview.'
 }
 
 foreach ($browser in $Browsers) {
     Write-Host "`n$($browser.Name)  ($($browser.Key))"
-    Add-ForceInstall $browser.Key
+    if ($browser.Name -eq 'Microsoft Edge' -and $EdgeExtensionId) {
+        Add-ForceInstall $browser.Key $EdgeExtensionId $EdgeStoreUpdateUrl $ExtensionId
+    } elseif ($ExtensionId) {
+        Add-ForceInstall $browser.Key $ExtensionId $ChromeStoreUpdateUrl
+    } else {
+        Write-Warning "No Chrome Web Store ID given: Block Haram is not force-installed in $($browser.Name)."
+    }
     foreach ($policy in $browser.Policies.GetEnumerator()) {
         Set-PolicyValue $browser.Key $policy.Key $policy.Value
     }
