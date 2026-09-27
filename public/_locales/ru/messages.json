@@ -38,6 +38,9 @@
   "statBlocked": {
     "message": "Заблокировано попыток"
   },
+  "statLearned": {
+    "message": "Найдено автоматически"
+  },
   "statUpdated": {
     "message": "База обновлена"
   },

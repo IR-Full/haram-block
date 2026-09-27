@@ -28,7 +28,6 @@ const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 120_000;
 const FETCH_ATTEMPTS = 3;
 const CHUNK_SIZE = 5_000;
-const BLOCKED_PAGE_PATH = '/blocked.html';
 
 const args = new Set(process.argv.slice(2));
 
@@ -119,7 +118,7 @@ async function main(): Promise<void> {
     throw new Error(`must-block.txt: not covered by the ruleset: ${missing.join(', ')}`);
   }
 
-  const rules = buildRules(domains, { chunkSize: CHUNK_SIZE, blockedPagePath: BLOCKED_PAGE_PATH });
+  const rules = buildRules(domains, CHUNK_SIZE);
   const json = JSON.stringify(rules);
   await writeFile(RULESET_PATH, json);
   await writeFile(

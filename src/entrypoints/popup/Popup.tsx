@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { formatDate, formatNumber, t, type MessageKey } from '~/shared/i18n';
 import { openExtensionSettings, useIncognitoAllowed } from '~/shared/incognito';
 import { loadListMeta, type ListMeta } from '~/shared/list-meta';
+import { learnedHosts } from '~/shared/learned';
 import { blockedCount } from '~/shared/stats';
 
 interface StatProps {
@@ -23,12 +24,22 @@ function Stat({ label, value, detail }: StatProps) {
 export function Popup() {
   const [meta, setMeta] = useState<ListMeta | null>(null);
   const [blocked, setBlocked] = useState<number | null>(null);
+  const [learned, setLearned] = useState<number | null>(null);
   const incognitoAllowed = useIncognitoAllowed();
 
   useEffect(() => {
+    const countLearned = (hosts: Record<string, number>) => {
+      setLearned(Object.keys(hosts).length);
+    };
     void loadListMeta().then(setMeta);
     void blockedCount.getValue().then(setBlocked);
-    return blockedCount.watch(setBlocked);
+    void learnedHosts.getValue().then(countLearned);
+    const unwatchBlocked = blockedCount.watch(setBlocked);
+    const unwatchLearned = learnedHosts.watch(countLearned);
+    return () => {
+      unwatchBlocked();
+      unwatchLearned();
+    };
   }, []);
 
   return (
@@ -63,6 +74,7 @@ export function Popup() {
       <dl class="mt-3 divide-y divide-line px-1">
         <Stat label="statDomains" value={meta && formatNumber(meta.domainCount)} />
         <Stat label="statBlocked" value={blocked === null ? null : formatNumber(blocked)} />
+        <Stat label="statLearned" value={learned === null ? null : formatNumber(learned)} />
         <Stat label="statSafeSearch" value={t('statOn')} detail={meta?.safeSearch.join(' · ')} />
         <Stat label="statUpdated" value={meta && formatDate(meta.generatedAt)} />
       </dl>

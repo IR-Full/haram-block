@@ -3,7 +3,7 @@ import { buildRules } from '../../tools/build-lists/rules.ts';
 
 describe('buildRules', () => {
   const domains = ['a.example', 'b.example', 'c.example'];
-  const rules = buildRules(domains, { chunkSize: 2, blockedPagePath: '/blocked.html' });
+  const rules = buildRules(domains, 2);
 
   it('emits a redirect and a block rule per chunk with unique sequential ids', () => {
     expect(rules.map((r) => [r.id, r.action.type])).toEqual([

@@ -44,6 +44,28 @@ async function listenDualProtocol(handler: RequestListener): Promise<net.Server>
   return server;
 }
 
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+/**
+ * Test pages are shaped by query parameters:
+ *   ?embed=host                     embeds an image and an iframe from `host`
+ *   ?title=…&description=…&rating=… sets the <head> signals the content script classifies
+ * Without them the page is titled "ok <host>".
+ */
+function renderPage(host: string, params: URLSearchParams): string {
+  const embed = params.get('embed');
+  if (embed !== null) {
+    return `<title>embed</title><img id="img" src="http://${embed}/pic.png"><iframe id="frame" src="http://${embed}/"></iframe>`;
+  }
+  const meta = ['description', 'rating']
+    .filter((name) => params.has(name))
+    .map((name) => `<meta name="${name}" content="${escapeHtml(params.get(name)!)}">`)
+    .join('');
+  const title = escapeHtml(params.get('title') ?? `ok ${host}`);
+  return `<!doctype html><html><head><title>${title}</title>${meta}</head><body><h1>${title}</h1></body></html>`;
+}
+
 /**
  * Every hostname resolves to a local server, so tests exercise real navigation to
  * `pornhub.com` etc. without any traffic leaving the machine.
@@ -61,12 +83,7 @@ export const test = base.extend<{ page: Page }, { origin: Origin; extContext: Br
         const url = new URL(req.url ?? '/', `${scheme}://${host}`);
         requestedHosts.add(host);
         requests.push({ url, headers: req.headers });
-        const embed = url.searchParams.get('embed');
-        const body =
-          embed === null
-            ? `<title>ok ${host}</title><h1>ok ${host}</h1>`
-            : `<title>embed</title><img id="img" src="http://${embed}/pic.png"><iframe id="frame" src="http://${embed}/"></iframe>`;
-        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(body);
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(renderPage(host, url.searchParams));
       });
       await use({ port: (server.address() as AddressInfo).port, requestedHosts, requests });
       await new Promise((resolve) => server.close(resolve));

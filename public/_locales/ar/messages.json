@@ -38,6 +38,9 @@
   "statBlocked": {
     "message": "المحاولات المحجوبة"
   },
+  "statLearned": {
+    "message": "تم اكتشافها تلقائيًا"
+  },
   "statUpdated": {
     "message": "آخر تحديث للقائمة"
   },

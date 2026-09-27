@@ -38,6 +38,9 @@
   "statBlocked": {
     "message": "Attempts blocked"
   },
+  "statLearned": {
+    "message": "Detected automatically"
+  },
   "statUpdated": {
     "message": "List updated"
   },
