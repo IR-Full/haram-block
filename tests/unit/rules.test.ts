@@ -27,7 +27,9 @@ describe('buildRules', () => {
   });
 
   it('covers every domain exactly once per action', () => {
-    const redirected = rules.filter((r) => r.action.type === 'redirect').flatMap((r) => r.condition.requestDomains);
+    const redirected = rules
+      .filter((r) => r.action.type === 'redirect')
+      .flatMap((r) => r.condition.requestDomains ?? []);
     expect(redirected).toEqual(domains);
   });
 });

@@ -1,23 +1,53 @@
 {
-  "extName": { "message": "Block Haram: adult site blocker" },
+  "extName": {
+    "message": "Block Haram: adult site blocker"
+  },
   "extDescription": {
     "message": "Blocks over 500,000 adult websites right in the browser. No telemetry: everything runs locally."
   },
-  "blockedTitle": { "message": "Site blocked" },
+  "blockedTitle": {
+    "message": "Site blocked"
+  },
   "blockedLead": {
     "message": "This site contains adult content. Your protection worked — and that is the right choice."
   },
   "ayahTranslation": {
     "message": "Tell the believing men to lower their gaze and guard their chastity. That is purer for them."
   },
-  "ayahSource": { "message": "Quran, Surah An-Nur, 24:30" },
-  "goBack": { "message": "Go back" },
-  "closeTab": { "message": "Close tab" },
-  "blockedCounter": { "message": "Attempts blocked: $1" },
-  "popupStatus": { "message": "Protection is on" },
-  "popupStatusHint": { "message": "Always active and cannot be turned off." },
-  "statDomains": { "message": "Sites in the list" },
-  "statBlocked": { "message": "Attempts blocked" },
-  "statUpdated": { "message": "List updated" },
-  "popupPrivacy": { "message": "Everything runs locally: your browsing history is never sent anywhere." }
+  "ayahSource": {
+    "message": "Quran, Surah An-Nur, 24:30"
+  },
+  "goBack": {
+    "message": "Go back"
+  },
+  "closeTab": {
+    "message": "Close tab"
+  },
+  "blockedCounter": {
+    "message": "Attempts blocked: $1"
+  },
+  "popupStatus": {
+    "message": "Protection is on"
+  },
+  "popupStatusHint": {
+    "message": "Always active and cannot be turned off."
+  },
+  "statDomains": {
+    "message": "Sites in the list"
+  },
+  "statBlocked": {
+    "message": "Attempts blocked"
+  },
+  "statUpdated": {
+    "message": "List updated"
+  },
+  "statSafeSearch": {
+    "message": "Safe search"
+  },
+  "statOn": {
+    "message": "On"
+  },
+  "popupPrivacy": {
+    "message": "Everything runs locally: your browsing history is never sent anywhere."
+  }
 }

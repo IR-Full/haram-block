@@ -1,21 +1,53 @@
 {
-  "extName": { "message": "Block Haram: блокировка 18+ сайтов" },
+  "extName": {
+    "message": "Block Haram: блокировка 18+ сайтов"
+  },
   "extDescription": {
     "message": "Блокирует более 500 000 сайтов для взрослых прямо в браузере. Без телеметрии: всё работает локально."
   },
-  "blockedTitle": { "message": "Сайт заблокирован" },
-  "blockedLead": { "message": "Этот сайт содержит контент для взрослых. Защита сработала — и это правильный выбор." },
+  "blockedTitle": {
+    "message": "Сайт заблокирован"
+  },
+  "blockedLead": {
+    "message": "Этот сайт содержит контент для взрослых. Защита сработала — и это правильный выбор."
+  },
   "ayahTranslation": {
     "message": "Скажи верующим мужчинам, чтобы они опускали свои взоры и оберегали своё целомудрие. Так будет чище для них."
   },
-  "ayahSource": { "message": "Коран, сура «Ан-Нур», 24:30" },
-  "goBack": { "message": "Вернуться назад" },
-  "closeTab": { "message": "Закрыть вкладку" },
-  "blockedCounter": { "message": "Заблокировано попыток: $1" },
-  "popupStatus": { "message": "Защита включена" },
-  "popupStatusHint": { "message": "Работает постоянно и не отключается." },
-  "statDomains": { "message": "Сайтов в базе" },
-  "statBlocked": { "message": "Заблокировано попыток" },
-  "statUpdated": { "message": "База обновлена" },
-  "popupPrivacy": { "message": "Всё работает локально: история посещений никуда не отправляется." }
+  "ayahSource": {
+    "message": "Коран, сура «Ан-Нур», 24:30"
+  },
+  "goBack": {
+    "message": "Вернуться назад"
+  },
+  "closeTab": {
+    "message": "Закрыть вкладку"
+  },
+  "blockedCounter": {
+    "message": "Заблокировано попыток: $1"
+  },
+  "popupStatus": {
+    "message": "Защита включена"
+  },
+  "popupStatusHint": {
+    "message": "Работает постоянно и не отключается."
+  },
+  "statDomains": {
+    "message": "Сайтов в базе"
+  },
+  "statBlocked": {
+    "message": "Заблокировано попыток"
+  },
+  "statUpdated": {
+    "message": "База обновлена"
+  },
+  "statSafeSearch": {
+    "message": "Безопасный поиск"
+  },
+  "statOn": {
+    "message": "Включён"
+  },
+  "popupPrivacy": {
+    "message": "Всё работает локально: история посещений никуда не отправляется."
+  }
 }

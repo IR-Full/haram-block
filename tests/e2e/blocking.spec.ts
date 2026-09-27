@@ -52,4 +52,5 @@ test('popup shows list size and blocked count', async ({ page, extensionId }) =>
   const values = page.locator('dd');
   await expect(values.first()).toHaveText(/^\d[\d\s,.\u00a0]{5,}$/);
   await expect(values.nth(1)).not.toHaveText('—');
+  await expect(page.getByText('Google · Bing')).toBeVisible();
 });

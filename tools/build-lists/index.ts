@@ -1,5 +1,5 @@
 /**
- * Builds the static DNR ruleset from upstream blocklists.
+ * Builds the static DNR rulesets: the adult blocklist from upstream lists, and the SafeSearch rules.
  *
  *   node tools/build-lists/index.ts               use cached downloads younger than CACHE_TTL
  *   node tools/build-lists/index.ts --refresh     re-download every source
@@ -13,6 +13,7 @@ import { collapseSubdomains, isCovered, subtractAllowlist } from './collapse.ts'
 import { normalizeHostname } from './normalize.ts';
 import { parseList } from './parse.ts';
 import { buildRules } from './rules.ts';
+import { buildSafeSearchRules, SAFE_SEARCH_ENGINES } from './safesearch.ts';
 import { SOURCES, type Source } from './sources.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -20,6 +21,7 @@ const ROOT = join(HERE, '..', '..');
 const CACHE_DIR = join(HERE, '.cache');
 const OUT_DIR = join(ROOT, 'public', 'rules');
 const RULESET_PATH = join(OUT_DIR, 'adult.json');
+const SAFESEARCH_PATH = join(OUT_DIR, 'safesearch.json');
 const META_PATH = join(OUT_DIR, 'meta.json');
 
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
@@ -73,12 +75,15 @@ async function loadSource(source: Source): Promise<string> {
 }
 
 async function main(): Promise<void> {
-  if (args.has('--if-missing') && existsSync(RULESET_PATH) && existsSync(META_PATH)) return;
+  if (args.has('--if-missing') && [RULESET_PATH, SAFESEARCH_PATH, META_PATH].every((p) => existsSync(p))) return;
 
   await mkdir(CACHE_DIR, { recursive: true });
   await mkdir(OUT_DIR, { recursive: true });
 
   const started = performance.now();
+  const safeSearchRules = buildSafeSearchRules();
+  await writeFile(SAFESEARCH_PATH, JSON.stringify(safeSearchRules));
+
   const texts = await Promise.all(SOURCES.map(loadSource));
 
   const union = new Set<string>();
@@ -119,13 +124,19 @@ async function main(): Promise<void> {
   await writeFile(RULESET_PATH, json);
   await writeFile(
     META_PATH,
-    JSON.stringify({ generatedAt: new Date().toISOString(), domainCount: domains.length, sources: sourceStats }),
+    JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      domainCount: domains.length,
+      sources: sourceStats,
+      safeSearch: SAFE_SEARCH_ENGINES.map((e) => e.name),
+    }),
   );
 
   console.log(`  union ${union.size + removed.length} → allowlisted −${removed.length} → collapsed ${domains.length}`);
   if (removed.length > 0) console.log(`  allowlist removed: ${removed.join(', ')}`);
+  console.log(`✓ safesearch: ${safeSearchRules.length} rules`);
   console.log(
-    `✓ ${rules.length} rules, ${(json.length / 1024 / 1024).toFixed(1)} MB, ${((performance.now() - started) / 1000).toFixed(1)} s`,
+    `✓ adult: ${rules.length} rules, ${(json.length / 1024 / 1024).toFixed(1)} MB, ${((performance.now() - started) / 1000).toFixed(1)} s`,
   );
 }
 

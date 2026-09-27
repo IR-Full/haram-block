@@ -3,11 +3,18 @@ import { formatDate, formatNumber, t, type MessageKey } from '~/shared/i18n';
 import { loadListMeta, type ListMeta } from '~/shared/list-meta';
 import { blockedCount } from '~/shared/stats';
 
-function Stat({ label, value }: { label: MessageKey; value: string | null }) {
+interface StatProps {
+  label: MessageKey;
+  value: string | null;
+  detail?: string | undefined;
+}
+
+function Stat({ label, value, detail }: StatProps) {
   return (
-    <div class="flex items-baseline justify-between gap-4 py-2.5">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 py-2.5">
       <dt class="text-sm text-muted">{t(label)}</dt>
       <dd class="font-semibold tabular-nums">{value ?? '—'}</dd>
+      {detail !== undefined && <dd class="mt-0.5 basis-full text-xs text-muted">{detail}</dd>}
     </div>
   );
 }
@@ -38,6 +45,7 @@ export function Popup() {
       <dl class="mt-3 divide-y divide-line px-1">
         <Stat label="statDomains" value={meta && formatNumber(meta.domainCount)} />
         <Stat label="statBlocked" value={blocked === null ? null : formatNumber(blocked)} />
+        <Stat label="statSafeSearch" value={t('statOn')} detail={meta?.safeSearch.join(' · ')} />
         <Stat label="statUpdated" value={meta && formatDate(meta.generatedAt)} />
       </dl>
 

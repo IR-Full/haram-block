@@ -7,13 +7,15 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { isCovered } from './collapse.ts';
-import type { DnrRule } from './rules.ts';
+import type { DnrRule } from './dnr.ts';
 
 const TOP_N = Number(process.argv[2] ?? 10_000);
 const RULESET_PATH = join(import.meta.dirname, '..', '..', 'public', 'rules', 'adult.json');
 
 const rules = JSON.parse(await readFile(RULESET_PATH, 'utf8')) as DnrRule[];
-const domains = new Set(rules.filter((r) => r.action.type === 'redirect').flatMap((r) => r.condition.requestDomains));
+const domains = new Set(
+  rules.filter((r) => r.action.type === 'redirect').flatMap((r) => r.condition.requestDomains ?? []),
+);
 
 const latest = (await (await fetch('https://tranco-list.eu/api/lists/date/latest')).json()) as { list_id: string };
 const csv = await (await fetch(`https://tranco-list.eu/download/${latest.list_id}/${TOP_N}`)).text();

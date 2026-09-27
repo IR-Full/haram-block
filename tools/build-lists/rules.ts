@@ -1,14 +1,4 @@
-/** Subset of chrome.declarativeNetRequest.Rule used by this build; kept local so tools don't depend on browser typings. */
-export interface DnrRule {
-  id: number;
-  priority: number;
-  action: { type: 'block' } | { type: 'redirect'; redirect: { extensionPath: string } };
-  condition: {
-    requestDomains: string[];
-    resourceTypes?: string[];
-    excludedResourceTypes?: string[];
-  };
-}
+import type { DnrRule, ResourceType } from './dnr.ts';
 
 export interface RuleOptions {
   /** Domains per rule. One rule holds many domains, so ~700k domains fit in a few hundred rules. */
@@ -16,7 +6,7 @@ export interface RuleOptions {
   blockedPagePath: string;
 }
 
-const DOCUMENT_TYPES = ['main_frame', 'sub_frame'];
+const DOCUMENT_TYPES: ResourceType[] = ['main_frame', 'sub_frame'];
 
 /**
  * Each chunk becomes two rules: documents are redirected to the extension's block page, while
