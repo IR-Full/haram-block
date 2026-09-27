@@ -1,6 +1,6 @@
 /**
- * Renders Chrome Web Store graphics from the built extension into store-assets/:
- * 1280×800 screenshots of the real pages (ru, en) and the 440×280 / 1400×560 promo tiles.
+ * Renders store graphics from the built extension into store-assets/: 1280×800 screenshots of the
+ * real pages (ru, en), the 440×280 / 1400×560 promo tiles, and the 300×300 logo Edge Add-ons asks for.
  *
  *   npm run store:assets
  *
@@ -34,6 +34,8 @@ async function launch(locale: Locale): Promise<{ context: BrowserContext; extens
     locale,
     viewport: SCREEN,
     deviceScaleFactor: 1,
+    // Chromium on Linux takes its UI language (and so chrome.i18n) from LANGUAGE, not --lang.
+    env: { ...process.env, LANGUAGE: locale },
     args: [
       `--disable-extensions-except=${EXTENSION}`,
       `--load-extension=${EXTENSION}`,
@@ -128,6 +130,17 @@ async function promoTiles(): Promise<void> {
     await page.screenshot({ path: join(OUT, tile.name) });
     await page.close();
   }
+
+  // Edge Add-ons wants a square store logo; the shield on a transparent background, like the toolbar icon.
+  const logo = await browser.newPage({ viewport: { width: 300, height: 300 } });
+  await logo.setContent(`<!doctype html>
+    <style>
+      body { margin: 0; height: 100vh; display: grid; place-items: center; background: transparent; }
+      svg { width: 280px; height: 280px; }
+    </style>
+    ${icon}`);
+  await logo.screenshot({ path: join(OUT, 'logo-300.png'), omitBackground: true });
+  await logo.close();
   await browser.close();
 }
 

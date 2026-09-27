@@ -1,4 +1,4 @@
-# Chrome Web Store: тексты для карточки и формы публикации
+# Тексты для карточек магазинов: Chrome Web Store и Microsoft Edge Add-ons
 
 Всё ниже копируется в [панель разработчика](https://chrome.google.com/webstore/devconsole) как есть.
 Название и краткое описание берутся из `_locales/*/messages.json` (ключи `extName`, `extDescription`).
@@ -79,3 +79,37 @@ Blocks adult (pornographic) websites and enforces safe search in the browser.
 
 **Visibility:** Public. **Regions:** All regions.
 **Mature content:** No — расширение не показывает контент для взрослых, а блокирует его.
+
+## Microsoft Edge Add-ons
+
+Описания, скриншоты и промо-картинки те же, что для Chrome Web Store.
+
+**Availability:** Visibility — Public, Markets — все.
+
+**Properties:**
+
+- Category: **Productivity**
+- Privacy policy URL: `https://github.com/IR-Full/haram-block/blob/main/PRIVACY.md`
+- Website URL и Support contact: `https://github.com/IR-Full/haram-block`
+- Mature content: **No** — расширение блокирует контент для взрослых, а не показывает его.
+
+**Store listings** (ru, en, ar): описание из разделов выше, логотип `store-assets/logo-300.png`,
+small promo tile `promo-small.png`, скриншоты `screenshot-*.png`.
+
+**Notes for certification:**
+
+```
+Block Haram blocks adult websites using declarativeNetRequest static rulesets
+(~530,000 domains from oisd, HaGeZi, StevenBlack and Sinfonietta lists).
+
+How to test:
+1. Open https://pornhub.com — the extension's block page (blocked.html) is shown instead.
+2. Open https://www.bing.com/search?q=test — "adlt=strict" is added to the URL (safe search).
+3. Click the toolbar icon — the popup shows list size and block statistics.
+
+Host permission <all_urls> is required because DNR redirect and modifyHeaders
+actions need host access, and a content script reads the page title and meta
+tags locally to detect adult sites missing from the lists.
+No data leaves the device: no network requests, analytics or remote code.
+Source code: https://github.com/IR-Full/haram-block
+```
