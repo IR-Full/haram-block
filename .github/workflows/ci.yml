@@ -69,6 +69,8 @@ jobs:
         with:
           name: extension
           path: .output/*.zip
+          # WXT writes to .output/, and upload-artifact skips dot-directories unless told otherwise.
+          include-hidden-files: true
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v7
