@@ -90,7 +90,7 @@ npm run build
 
 ### Первый выпуск (вручную, один раз)
 
-1. **Репозиторий.** Создайте публичный репозиторий на GitHub и запушьте проект — ссылка на [`PRIVACY.md`](PRIVACY.md) в нём станет адресом политики конфиденциальности.
+1. **Репозиторий** — [github.com/IR-Full/haram-block](https://github.com/IR-Full/haram-block); ссылка на [`PRIVACY.md`](PRIVACY.md) в нём — адрес политики конфиденциальности.
 2. **Аккаунт разработчика.** Зарегистрируйтесь в [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) и оплатите $5.
 3. **Пакет и графика.**
    ```bash

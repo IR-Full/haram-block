@@ -16,6 +16,7 @@ export default defineConfig({
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
     default_locale: 'ru',
+    homepage_url: 'https://github.com/IR-Full/haram-block',
     minimum_chrome_version: '120',
     // Split mode would need a second copy of the ruleset index in incognito; spanning shares one.
     incognito: 'spanning',

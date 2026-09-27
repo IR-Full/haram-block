@@ -71,8 +71,9 @@ Blocks adult (pornographic) websites and enforces safe search in the browser.
 
 **Data usage:** Не отмечайте ни одного типа данных — расширение ничего не собирает. Поставьте все три подтверждения (не продаётся, не используется для посторонних целей, не используется для кредитоспособности).
 
-**Privacy policy URL:** ссылка на `PRIVACY.md` в публичном репозитории, например
-`https://github.com/<owner>/block-haram/blob/main/PRIVACY.md`.
+**Privacy policy URL:** `https://github.com/IR-Full/haram-block/blob/main/PRIVACY.md`
+
+**Homepage URL / Support URL:** `https://github.com/IR-Full/haram-block`
 
 ## Distribution
 
