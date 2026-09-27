@@ -49,5 +49,41 @@
   },
   "popupPrivacy": {
     "message": "Everything runs locally: your browsing history is never sent anywhere."
+  },
+  "welcomeTitle": {
+    "message": "Protection installed"
+  },
+  "welcomeLead": {
+    "message": "Block Haram is already blocking adult sites and has turned on safe search. A couple of steps make it hard to get around."
+  },
+  "stepIncognitoTitle": {
+    "message": "Allow in Incognito"
+  },
+  "stepIncognitoText": {
+    "message": "Without this, sites are not blocked in Incognito windows. Open the extension settings and turn on “Allow in Incognito”."
+  },
+  "stepIncognitoButton": {
+    "message": "Open settings"
+  },
+  "stepDone": {
+    "message": "Done"
+  },
+  "stepPinTitle": {
+    "message": "Pin the icon"
+  },
+  "stepPinText": {
+    "message": "Click the puzzle icon next to the address bar and pin Block Haram to see its stats."
+  },
+  "stepLockTitle": {
+    "message": "Protect against removal"
+  },
+  "stepLockText": {
+    "message": "Any extension can be removed. On Windows, the computer administrator can lock Block Haram in with browser policies and disable Incognito and Guest mode."
+  },
+  "incognitoWarning": {
+    "message": "Not active in Incognito"
+  },
+  "incognitoWarningAction": {
+    "message": "Turn on"
   }
 }

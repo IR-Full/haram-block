@@ -49,5 +49,41 @@
   },
   "popupPrivacy": {
     "message": "كل شيء يعمل محليًا: لا يُرسَل سجل التصفح إلى أي مكان."
+  },
+  "welcomeTitle": {
+    "message": "تم تثبيت الحماية"
+  },
+  "welcomeLead": {
+    "message": "يحجب Block Haram المواقع الإباحية بالفعل وقد فعّل البحث الآمن. بقيت خطوات قليلة لجعل تجاوز الحماية صعبًا."
+  },
+  "stepIncognitoTitle": {
+    "message": "اسمح بالعمل في وضع التصفح المتخفي"
+  },
+  "stepIncognitoText": {
+    "message": "بدون ذلك لن تُحجب المواقع في نوافذ التصفح المتخفي. افتح إعدادات الإضافة وفعّل «السماح في وضع التصفح المتخفي»."
+  },
+  "stepIncognitoButton": {
+    "message": "فتح الإعدادات"
+  },
+  "stepDone": {
+    "message": "تم"
+  },
+  "stepPinTitle": {
+    "message": "ثبّت الأيقونة"
+  },
+  "stepPinText": {
+    "message": "انقر على أيقونة القطعة بجانب شريط العنوان وثبّت Block Haram لرؤية الإحصاءات."
+  },
+  "stepLockTitle": {
+    "message": "احمِ الإضافة من الإزالة"
+  },
+  "stepLockText": {
+    "message": "يمكن إزالة أي إضافة. على Windows يمكن لمسؤول الجهاز تثبيت Block Haram عبر سياسات المتصفح وتعطيل وضع التصفح المتخفي ووضع الضيف."
+  },
+  "incognitoWarning": {
+    "message": "غير مفعّلة في وضع التصفح المتخفي"
+  },
+  "incognitoWarningAction": {
+    "message": "تفعيل"
   }
 }

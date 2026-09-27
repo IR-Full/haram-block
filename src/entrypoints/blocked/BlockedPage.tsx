@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
+import { ShieldIcon } from '~/components/ShieldIcon';
 import { formatNumber, t } from '~/shared/i18n';
 
 /** Uthmani text of An-Nur 24:30, first sentence. Shown in every locale. */
@@ -27,17 +28,7 @@ export function BlockedPage({ count }: Props) {
     <main class="flex min-h-screen items-center justify-center p-6">
       <div class="w-full max-w-xl text-center">
         <div class="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-brand-soft text-brand">
-          <svg
-            viewBox="0 0 24 24"
-            class="size-9"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            aria-hidden="true"
-          >
-            <path d="M12 3 20 6v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6Z" stroke-linejoin="round" />
-            <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
+          <ShieldIcon class="size-9" />
         </div>
 
         <h1 class="text-3xl font-semibold tracking-tight">{t('blockedTitle')}</h1>

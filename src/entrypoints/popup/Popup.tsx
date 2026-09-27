@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { formatDate, formatNumber, t, type MessageKey } from '~/shared/i18n';
+import { openExtensionSettings, useIncognitoAllowed } from '~/shared/incognito';
 import { loadListMeta, type ListMeta } from '~/shared/list-meta';
 import { blockedCount } from '~/shared/stats';
 
@@ -22,6 +23,7 @@ function Stat({ label, value, detail }: StatProps) {
 export function Popup() {
   const [meta, setMeta] = useState<ListMeta | null>(null);
   const [blocked, setBlocked] = useState<number | null>(null);
+  const incognitoAllowed = useIncognitoAllowed();
 
   useEffect(() => {
     void loadListMeta().then(setMeta);
@@ -41,6 +43,22 @@ export function Popup() {
           <p class="text-xs text-muted">{t('popupStatusHint')}</p>
         </div>
       </header>
+
+      {incognitoAllowed === false && (
+        <div
+          role="alert"
+          class="mt-3 flex items-center justify-between gap-3 rounded-xl bg-warn-soft px-4 py-3 text-warn"
+        >
+          <span class="text-sm font-medium">{t('incognitoWarning')}</span>
+          <button
+            type="button"
+            onClick={openExtensionSettings}
+            class="shrink-0 rounded-lg border border-current px-3 py-1 text-xs font-semibold transition hover:bg-warn hover:text-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warn"
+          >
+            {t('incognitoWarningAction')}
+          </button>
+        </div>
+      )}
 
       <dl class="mt-3 divide-y divide-line px-1">
         <Stat label="statDomains" value={meta && formatNumber(meta.domainCount)} />
